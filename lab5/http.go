@@ -30,7 +30,7 @@ func HTTPGet(rawURL string) (string, error) {
 	defer conn.Close()
 
 	request := fmt.Sprintf(
-		"GET %s HTTP/1.1\r\nHost: %s\r\nConnection: close\r\nAccept: text/html\r\n\r\n",
+		"GET %s HTTP/1.1\r\nHost: %s\r\nConnection: close\r\nAccept: text/html\r\nAccept-Encoding: identity\r\nUser-Agent: go2web/1.0\r\n\r\n",
 		parsed.Path, parsed.Host)
 
 	_, err = conn.Write([]byte(request))
@@ -69,6 +69,9 @@ func HTTPGet(rawURL string) (string, error) {
 			return HTTPGet(location)
 		}
 	}
+	if strings.Contains(strings.ToLower(headers), "transfer-encoding: chunked") {
+		body = decodeChunked(body)
+	}
 
 	return body, nil
 
@@ -85,4 +88,32 @@ func getHeader(headers string, name string) string {
 		}
 	}
 	return ""
+}
+
+func decodeChunked(body string) string {
+	var result strings.Builder
+	remaining := body
+
+	for {
+		idx := strings.Index(remaining, "\r\n")
+		if idx == -1 {
+			break
+		}
+		sizeHex := strings.TrimSpace(remaining[:idx])
+		if sizeHex == "" || sizeHex == "0" {
+			break
+		}
+		var size int
+		fmt.Sscanf(sizeHex, "%x", &size)
+		if size == 0 {
+			break
+		}
+		dataStart := idx + 2
+		if dataStart+size > len(remaining) {
+			break
+		}
+		result.WriteString(remaining[dataStart : dataStart+size])
+		remaining = remaining[dataStart+size+2:]
+	}
+	return result.String()
 }
