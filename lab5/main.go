@@ -29,12 +29,8 @@ func fetchURL(url string) {
 		fmt.Println("Error:", err)
 		return
 	}
-	readeble := strimHTML(body)
+	readeble := stripHTML(body)
 	fmt.Println(readeble)
-}
-
-func search(term string) {
-	fmt.Println("TODO: search for", term)
 }
 
 func main() {
