@@ -4,7 +4,7 @@ import (
 	"strings"
 )
 
-func strimHTML(html string) string {
+func stripHTML(html string) string {
 	var result strings.Builder
 	inTag := false
 
