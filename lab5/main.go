@@ -7,9 +7,9 @@ import (
 
 func printHelp() {
 	fmt.Println("Usage:")
-	fmt.Println("  -h            Show help message")
-	fmt.Println("  -u <URL>      Fetch the content of the specified URL")
-	fmt.Println("  -s <term>     Search for the specified term in a file")
+	fmt.Println("  go2web -u <URL>          Make an HTTP request to the specified URL")
+	fmt.Println("  go2web -s <search-term>  Search the term and print top 10 results")
+	fmt.Println("  go2web -h                Show this help")
 }
 
 func joinArgs(args []string) string {
@@ -19,29 +19,32 @@ func joinArgs(args []string) string {
 			result += " "
 		}
 		result += arg
-
 	}
 	return result
 }
 
 func fetchURL(url string) {
-	fmt.Println("Fetching URL:", url)
+	body, err := HTTPGet(url)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+	fmt.Println(body)
 }
 
 func search(term string) {
-	fmt.Println("Searching for term:", term)
+	fmt.Println("TODO: search for", term)
 }
 
 func main() {
-
 	if len(os.Args) < 2 {
 		printHelp()
 		return
 	}
+
 	switch os.Args[1] {
 	case "-h":
 		printHelp()
-
 	case "-u":
 		if len(os.Args) < 3 {
 			fmt.Println("Error: Please provide a URL after -u")
@@ -50,7 +53,7 @@ func main() {
 		fetchURL(os.Args[2])
 	case "-s":
 		if len(os.Args) < 3 {
-			fmt.Println("Error: Please provide a file path after -s")
+			fmt.Println("Error: Please provide a search term after -s")
 			return
 		}
 		searchTerm := joinArgs(os.Args[2:])
@@ -59,5 +62,4 @@ func main() {
 		fmt.Println("Error: Unknown option", os.Args[1])
 		printHelp()
 	}
-
 }
