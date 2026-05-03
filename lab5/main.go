@@ -29,7 +29,8 @@ func fetchURL(url string) {
 		fmt.Println("Error:", err)
 		return
 	}
-	fmt.Println(body)
+	readeble := strimHTML(body)
+	fmt.Println(readeble)
 }
 
 func search(term string) {
